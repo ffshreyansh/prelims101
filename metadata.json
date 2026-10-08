@@ -1,0 +1,6 @@
+{
+  "name": "PIB Prelims Edge - UPSC Current Affairs & Mock Test Hub",
+  "description": "Official Press Information Bureau (PIB) releases filtered for UPSC Prelims with high-yield summaries, key takeaways, AI mock test generation, and revision analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
