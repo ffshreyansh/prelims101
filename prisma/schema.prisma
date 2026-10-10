@@ -36,10 +36,21 @@ model Article {
   prelimsImportance     Int      @default(5)
   tags                  String[]
   summaryBullets        String[]
+  statutoryOrConstitutional String?
+  nodalMinistryOrAgency String?
+  fundingPattern        String?
+  objectives            String[]
+  eligibleBeneficiaries String?
+  keyPointers           String[]
   pyqYear               String?
   pyqTopic              String?
   staticBookReference   String?
+  staticChapterTopic    String?
   staticWhatToRead      String?
+  staticCoreArticlesOrActs String[]
+  syllabusSubject       String?
+  syllabusArticleOrAct  String?
+  syllabusRelatedConcepts String[]
   prelimsTrapAlert      String
   fullContent           String?
   officialUrl           String?

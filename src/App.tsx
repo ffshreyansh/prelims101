@@ -27,7 +27,8 @@ import {
   Sparkles, 
   BookOpen, 
   CheckCircle2,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 
 export default function App() {
@@ -111,6 +112,8 @@ export default function App() {
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   const [isRazorpayModalOpen, setIsRazorpayModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isFetchingArticles, setIsFetchingArticles] = useState(false);
+  const [fetchArticlesMsg, setFetchArticlesMsg] = useState<string | null>(null);
 
   // Handle browser back/forward navigation
   useEffect(() => {
@@ -155,13 +158,39 @@ export default function App() {
   // Fetch articles and tests from API on mount
   const fetchArticles = () => {
     fetch('/api/pib/articles')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load articles (${res.status})`);
+        return res.json();
+      })
       .then((data) => {
         if (data.success && data.articles?.length > 0) {
           setArticles(data.articles);
         }
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error('Failed to load articles:', error);
+      });
+  };
+
+  const handleFetchLatestArticles = async () => {
+    setIsFetchingArticles(true);
+    setFetchArticlesMsg('Fetching from PIB…');
+    try {
+      const res = await fetch('/api/articles/fetch', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const added = data.stats?.added ?? data.stats?.saved ?? data.stats?.new ?? 0;
+        setFetchArticlesMsg(`✓ ${added} new articles added`);
+        await fetchArticles();
+      } else {
+        setFetchArticlesMsg(data.message || `Fetch failed (${res.status})`);
+      }
+    } catch (error) {
+      setFetchArticlesMsg(error instanceof Error ? error.message : 'Network error');
+    } finally {
+      setIsFetchingArticles(false);
+      setTimeout(() => setFetchArticlesMsg(null), 4000);
+    }
   };
 
   useEffect(() => {
@@ -564,6 +593,15 @@ export default function App() {
                 </div>
 
                 <div className="flex items-center space-x-2 shrink-0">
+                  <button
+                    onClick={handleFetchLatestArticles}
+                    disabled={isFetchingArticles}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-2xs transition-colors flex items-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isFetchingArticles ? 'animate-spin' : ''}`} />
+                    <span>Fetch Latest Articles</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       if (!user) setIsAuthModalOpen(true);
